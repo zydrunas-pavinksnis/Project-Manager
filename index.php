@@ -23,9 +23,16 @@
     $result = mysqli_query($conn, $sql);
 
     if (mysqli_num_rows($result) > 0) {
-        while($row = mysqli_fetch_assoc($result)) {
-            echo  $row["id"]. " " . $row["name"]. " " . $row["surname"]. "<br>";
+       echo '<table border="1">';
+       echo '<tr><th>id</th><th>name</th><th>surname</th></tr>';
+       while($row = mysqli_fetch_assoc($result)) {
+
+            echo '<tr><td>'.$row["id"].'</td><td>'.$row["name"].'</td><td>'.$row["surname"].'</td</tr>';
+            
+            
         }
+
+        echo '</table>';
     } else {
         echo "0 results";
     }
