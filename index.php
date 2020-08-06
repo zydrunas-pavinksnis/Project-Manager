@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employees & Projects</title>
+    <title>Project Manager</title>
     <style>
 table {
   font-family: arial, sans-serif;
@@ -26,24 +26,19 @@ tr:nth-child(even) {
 
     <table><tr><th>
         <form action="index.php" method="POST">
-            <input type="hidden"  name="empl" value="employees">
+            <input type="hidden"  name="empl">
             <a href="#" onclick="this.parentNode.submit();">Employees</a>
         </form>
     </th><th>
 
         <form action="index.php" method="POST">
-            <input type="hidden"  name="proj" value="actions">
+            <input type="hidden"  name="proj">
             <a href="#" onclick="this.parentNode.submit();">Projects</a>
         </form>
-    </th></tr>
+    </th><th style="text-align:right"><h2>Project Manager</h2></th></tr>
     </table>
 
-
-    <br><br>
-
-
-
-     
+    <br><br>    
 
     <?php
     $servername = "localhost";
@@ -59,65 +54,52 @@ tr:nth-child(even) {
     }
 
 
-    $sql = "SELECT actions.projectname, actions.id, group_concat(employees.name)
-                FROM actions
-                LEFT JOIN employees
-                ON actions.id=employees.project_id
-                GROUP BY actions.id";
-
-    $result = mysqli_query($conn, $sql);
-
-    var_dump($result);
-
-    if (mysqli_num_rows($result) > 0) {
-        echo '<table>';
-        echo '<tr><th>project id</th><th>projectname</th><th>employees.project_id</th><th></th></tr>';
-        while($row = mysqli_fetch_assoc($result)) {
-            echo '<tr><td>'.$row["id"].'</td><td>'.$row["projectname"].'</td><td>'.$row["group_concat(employees.name)"].'</td><td></td></tr>';                
-        }
-        echo '</table>';
-    } else {
-        echo "0 results";
-    }
-
-
-
     if (isset($_POST['empl'])) {
-        $tableName = $_POST['empl'];
-                    
-        $sql = "SELECT id, name, surname FROM $tableName ";
+        // $sql = "SELECT id, name FROM employees ";
+
+        $sql = "SELECT employees.id, employees.name, actions.projectname
+        FROM employees
+        LEFT JOIN actions
+        ON employees.project_id=actions.id";
+        
+
+
         
 
         $result = mysqli_query($conn, $sql);
     
         if (mysqli_num_rows($result) > 0) {
             echo '<table>';
-            echo '<tr><th>employee id</th><th>name</th><th>surname</th><th>project</th></tr>';
+            echo '<tr><th>employee id</th><th>name</th><th>project</th></tr>';
             while($row = mysqli_fetch_assoc($result)) {
-                echo '<tr><td>'.$row["id"].'</td><td>'.$row["name"].'</td><td>'.$row["surname"].'</td><td></td></tr>';                
+                echo '<tr><td>'.$row["id"].'</td><td>'.$row["name"].'</td><td>'.$row["projectname"].'</td></tr>';                
             }
             echo '</table>';
         } else {
             echo "0 results";
         }    
-    }
+    }    
 
     if (isset($_POST['proj'])) {
-        $tableName = $_POST['proj'];
-                    
-        $sql = "SELECT id, projectname FROM $tableName ";
+
+        $sql = "SELECT actions.projectname, actions.id, GROUP_CONCAT(employees.name SEPARATOR ', ')
+                FROM actions
+                LEFT JOIN employees
+                ON actions.id=employees.project_id
+                GROUP BY actions.id";
+
         $result = mysqli_query($conn, $sql);
-    
+
         if (mysqli_num_rows($result) > 0) {
             echo '<table>';
-            echo '<tr><th>project id</th><th>project name</th><th>responsible empoyee(s)</th></tr>';
+            echo '<tr><th>project id</th><th>project name</th><th>responsible employee(s)</th><th></th></tr>';
             while($row = mysqli_fetch_assoc($result)) {
-                echo '<tr><td>'.$row["id"].'</td><td>'.$row["projectname"].'</td><td></td></tr>';                
+                echo '<tr><td>'.$row["id"].'</td><td>'.$row["projectname"].'</td><td>'.$row["GROUP_CONCAT(employees.name SEPARATOR ', ')"].'</td><td></td></tr>';                
             }
             echo '</table>';
         } else {
             echo "0 results";
-        }    
+        }
     }
 
     
