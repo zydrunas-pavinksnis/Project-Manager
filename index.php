@@ -53,46 +53,44 @@ tr:nth-child(even) {
         die("Connection failed: " . mysqli_connect_error());
     }
 
-
-    if (isset($_POST['empl'])) {
-        // $sql = "SELECT id, name FROM employees ";
-
+    function drawEmplTable (){
         $sql = "SELECT employees.id, employees.name, actions.projectname
-        FROM employees
-        LEFT JOIN actions
-        ON employees.project_id=actions.id";
-        
+                FROM employees
+                LEFT JOIN actions
+                ON employees.project_id=actions.id";
 
-
-        
-
-        $result = mysqli_query($conn, $sql);
+        $result = mysqli_query($GLOBALS["conn"], $sql);
     
         if (mysqli_num_rows($result) > 0) {
             echo '<table>';
-            echo '<tr><th>employee id</th><th>name</th><th>project</th></tr>';
+            echo '<tr><th>employee id</th><th>name</th><th>project</th><th>actions</th></tr>';
             while($row = mysqli_fetch_assoc($result)) {
-                echo '<tr><td>'.$row["id"].'</td><td>'.$row["name"].'</td><td>'.$row["projectname"].'</td></tr>';                
+                echo '<tr><td>'.$row["id"].'</td><td>'.$row["name"].'</td><td>'.$row["projectname"].'</td>
+                <td>
+                    <form action="index.php" method="POST">
+                    <input type="hidden"  name="emplID" value="'.$row["id"].'">
+                    <input type="submit" value="delete employee">
+                    </form>
+                </td></tr>';                
             }
             echo '</table>';
         } else {
             echo "0 results";
-        }    
-    }    
+        }
+    }
 
-    if (isset($_POST['proj'])) {
-
+    function drawProjTable(){
         $sql = "SELECT actions.projectname, actions.id, GROUP_CONCAT(employees.name SEPARATOR ', ')
                 FROM actions
                 LEFT JOIN employees
                 ON actions.id=employees.project_id
                 GROUP BY actions.id";
 
-        $result = mysqli_query($conn, $sql);
+        $result = mysqli_query($GLOBALS["conn"], $sql);
 
         if (mysqli_num_rows($result) > 0) {
             echo '<table>';
-            echo '<tr><th>project id</th><th>project name</th><th>responsible employee(s)</th><th></th></tr>';
+            echo '<tr><th>project id</th><th>project name</th><th>responsible employee(s)</th><th>actions</th></tr>';
             while($row = mysqli_fetch_assoc($result)) {
                 echo '<tr><td>'.$row["id"].'</td><td>'.$row["projectname"].'</td><td>'.$row["GROUP_CONCAT(employees.name SEPARATOR ', ')"].'</td><td></td></tr>';                
             }
@@ -101,6 +99,27 @@ tr:nth-child(even) {
             echo "0 results";
         }
     }
+
+
+
+    if (isset($_POST['empl'])) {
+        drawEmplTable();
+    }
+
+
+    if (isset($_POST['proj'])) {
+        drawProjTable();
+    }
+
+    if (isset($_POST['emplID'])) {
+        $deleteid = $_POST['emplID'];
+        $sqldelete = "DELETE FROM employees WHERE `id` = $deleteid ";
+        mysqli_query($conn, $sqldelete);
+        drawEmplTable();
+        // header("Refresh:0");                      
+    }
+
+    
 
     
 
