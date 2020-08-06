@@ -68,7 +68,7 @@ tr:nth-child(even) {
                 echo '<tr><td>'.$row["id"].'</td><td>'.$row["name"].'</td><td>'.$row["projectname"].'</td>
                 <td>
                     <form action="index.php" method="POST">
-                    <input type="hidden"  name="emplID" value="'.$row["id"].'">
+                    <input type="hidden"  name="delemplid" value="'.$row["id"].'">
                     <input type="submit" value="delete employee">
                     </form>
                 </td></tr>';                
@@ -92,7 +92,13 @@ tr:nth-child(even) {
             echo '<table>';
             echo '<tr><th>project id</th><th>project name</th><th>responsible employee(s)</th><th>actions</th></tr>';
             while($row = mysqli_fetch_assoc($result)) {
-                echo '<tr><td>'.$row["id"].'</td><td>'.$row["projectname"].'</td><td>'.$row["GROUP_CONCAT(employees.name SEPARATOR ', ')"].'</td><td></td></tr>';                
+                echo '<tr><td>'.$row["id"].'</td><td>'.$row["projectname"].'</td><td>'.$row["GROUP_CONCAT(employees.name SEPARATOR ', ')"].'</td>
+                <td>
+                    <form action="index.php" method="POST">
+                    <input type="hidden"  name="delprojid" value="'.$row["id"].'">
+                    <input type="submit" value="delete project">
+                    </form>
+                </td></tr>';                
             }
             echo '</table>';
         } else {
@@ -111,12 +117,18 @@ tr:nth-child(even) {
         drawProjTable();
     }
 
-    if (isset($_POST['emplID'])) {
-        $deleteid = $_POST['emplID'];
+    if (isset($_POST['delemplid'])) {
+        $deleteid = $_POST['delemplid'];
         $sqldelete = "DELETE FROM employees WHERE `id` = $deleteid ";
         mysqli_query($conn, $sqldelete);
-        drawEmplTable();
-        // header("Refresh:0");                      
+        drawEmplTable();                           
+    }
+
+    if (isset($_POST['delprojid'])) {
+        $deleteid = $_POST['delprojid'];
+        $sqldelete = "DELETE FROM actions WHERE `id` = $deleteid ";
+        mysqli_query($conn, $sqldelete);
+        drawProjTable();                           
     }
 
     
