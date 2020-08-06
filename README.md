@@ -1,4 +1,4 @@
-# SQL_PHP_Employees_Projects
+SPRINT task PROJECT MANAGER
 
 Install AMMPS.
 Creaste new directory in C:PrgramFiles/AMPPS/WWW...
