@@ -105,6 +105,7 @@ tr:nth-child(even) {
             echo "0 results";
         }
     }
+    
 
 
 
