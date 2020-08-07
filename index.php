@@ -191,9 +191,7 @@ tr:nth-child(even) {
                       WHERE `id` = $projid";
         mysqli_query($conn, $sqlupdate);
         drawProjTable();
-    }
-
-    
+    }    
 
     
 
