@@ -5,22 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Manager</title>
     <style>
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
+        table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+        }
 
-td, th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
-}
+        td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+        }
 
-tr:nth-child(even) {
-  background-color: #dddddd;
-}
-</style>
+        tr:nth-child(even) {
+        background-color: #dddddd;
+        }
+    </style>
 </head>
 <body>
 
@@ -74,7 +74,7 @@ tr:nth-child(even) {
     
         if (mysqli_num_rows($result) > 0) {
             echo '<table>';
-            echo '<tr><th>employee id</th><th>name</th><th>project</th><th colspan="2" style="text-align:center">actions</th></tr>';
+            echo '<tr><th>employee id</th><th>name</th><th>project</th><th colspan="3">actions</th></tr>';
             while($row = mysqli_fetch_assoc($result)) {
                 echo '<tr><td>'.$row["id"].'</td><td>'.$row["name"].'</td><td>'.$row["projectname"].'</td>
                 <td>
@@ -87,12 +87,13 @@ tr:nth-child(even) {
                     <input type="hidden"  name="wantUpdateEmplid" value="'.$row["id"].'">
                     <input type="submit" value="update employee name">
                     </form>
-                </td></tr>';                
+                </td><td>assing project to employee</td></tr>';                
             }
             echo '</table>';
         } else {
             echo "0 results";
         }
+        echo '<br><table><tr><td>add project</td><td>add employee</td></tr></table>';
     }
 
     function drawProjTable(){
@@ -106,7 +107,7 @@ tr:nth-child(even) {
 
         if (mysqli_num_rows($result) > 0) {
             echo '<table>';
-            echo '<tr><th>project id</th><th>project name</th><th>responsible employee(s)</th><th colspan="2" style="text-align:center">actions</th></tr>';
+            echo '<tr><th>project id</th><th>project name</th><th>responsible employee(s)</th><th colspan="2">actions</th></tr>';
             while($row = mysqli_fetch_assoc($result)) {
                 echo '<tr><td>'.$row["id"].'</td><td>'.$row["projectname"].'</td><td>'.$row["GROUP_CONCAT(employees.name SEPARATOR ', ')"].'</td>
                 <td>
@@ -125,7 +126,11 @@ tr:nth-child(even) {
         } else {
             echo "0 results";
         }
+        echo '<br><table><tr><td>add project</td><td>add employee</td></tr></table>';
     }
+
+    
+    // <td>assing project to employee</td>
 
     
     
