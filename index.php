@@ -82,7 +82,12 @@ tr:nth-child(even) {
                     <input type="hidden"  name="delemplid" value="'.$row["id"].'">
                     <input type="submit" value="delete employee">
                     </form>
-                </td><td>action 2</td></tr>';                
+                </td><td>
+                    <form action="index.php" method="POST">
+                    <input type="hidden"  name="wantUpdateEmplid" value="'.$row["id"].'">
+                    <input type="submit" value="update employee name">
+                    </form>
+                </td></tr>';                
             }
             echo '</table>';
         } else {
@@ -112,7 +117,7 @@ tr:nth-child(even) {
                 </td><td>
                     <form action="index.php" method="POST">
                     <input type="hidden"  name="wantUpdateProjid" value="'.$row["id"].'">
-                    <input type="submit" value="update project">
+                    <input type="submit" value="update project name">
                     </form>                
                 </td></tr>';                
             }
@@ -147,6 +152,54 @@ tr:nth-child(even) {
         mysqli_query($conn, $sqldelete);
         drawProjTable();                           
     }
+
+
+    if (isset($_POST['wantUpdateEmplid'])) {
+        $updateid = $_POST['wantUpdateEmplid'];
+        
+        $sql = "SELECT employees.id, employees.name, actions.projectname
+        FROM employees
+        LEFT JOIN actions
+        ON employees.project_id=actions.id";
+
+        $result = mysqli_query($GLOBALS["conn"], $sql);
+
+        if (mysqli_num_rows($result) > 0) {
+            echo '<table>';
+            echo '<tr><th>employee id</th><th>name</th><th>project</th></tr>';
+            while($row = mysqli_fetch_assoc($result)) {
+                if ($updateid == $row["id"]) {
+                    echo '<tr><td>'.$row["id"].'</td><td>
+                        <form action="index.php" method="POST">                        
+                            <input type="text"  name="updateemplname" value="'.$row["name"].'">
+                            <input type="hidden"  name="updateemplid" value="'.$row["id"].'">
+                            <input type="submit" value="submit update">
+                        </form>
+                    </td><td>'.$row["projectname"].'</td>
+                    </tr>';
+                    } else {
+                        echo '<tr><td>'.$row["id"].'</td><td>'.$row["name"].'</td><td>'.$row["projectname"].'</td>
+                    </tr>';    
+                    }
+            }
+            echo '</table>';
+        } else {
+            echo "0 results";
+        }
+    }
+
+    if (isset($_POST['updateemplname'])) {
+        $emplid = $_POST['updateemplid'];
+        $newemplname = $_POST['updateemplname'];
+        $sqlupdate = "UPDATE `employees`
+                      SET `name` = '$newemplname'
+                      WHERE `id` = $emplid";
+        mysqli_query($conn, $sqlupdate);
+        drawEmplTable();
+    }
+
+
+
 
 
     if (isset($_POST['wantUpdateProjid'])) {
@@ -191,9 +244,7 @@ tr:nth-child(even) {
                       WHERE `id` = $projid";
         mysqli_query($conn, $sqlupdate);
         drawProjTable();
-    }    
-
-    
+    }
 
     mysqli_close($conn);
     ?>
