@@ -40,11 +40,22 @@ tr:nth-child(even) {
 
     <br><br>    
 
+
+    
+    
+
     <?php
+    
+    // session_start();
+    // $_SESSION['empl'] = 'empl';
+    // $_POST['empl'] = $_SESSION['empl'];
+    // session_abort  ();
+
     $servername = "localhost";
     $username = "root";
     $password = "mysql";
     $dbname = "projects";
+    // $table = ;
 
     
     $conn = mysqli_connect($servername, $username, $password, $dbname);
@@ -63,7 +74,7 @@ tr:nth-child(even) {
     
         if (mysqli_num_rows($result) > 0) {
             echo '<table>';
-            echo '<tr><th>employee id</th><th>name</th><th>project</th><th>actions</th></tr>';
+            echo '<tr><th>employee id</th><th>name</th><th>project</th><th colspan="2" style="text-align:center">actions</th></tr>';
             while($row = mysqli_fetch_assoc($result)) {
                 echo '<tr><td>'.$row["id"].'</td><td>'.$row["name"].'</td><td>'.$row["projectname"].'</td>
                 <td>
@@ -71,7 +82,7 @@ tr:nth-child(even) {
                     <input type="hidden"  name="delemplid" value="'.$row["id"].'">
                     <input type="submit" value="delete employee">
                     </form>
-                </td></tr>';                
+                </td><td>action 2</td></tr>';                
             }
             echo '</table>';
         } else {
@@ -90,7 +101,7 @@ tr:nth-child(even) {
 
         if (mysqli_num_rows($result) > 0) {
             echo '<table>';
-            echo '<tr><th>project id</th><th>project name</th><th>responsible employee(s)</th><th>actions</th></tr>';
+            echo '<tr><th>project id</th><th>project name</th><th>responsible employee(s)</th><th colspan="2" style="text-align:center">actions</th></tr>';
             while($row = mysqli_fetch_assoc($result)) {
                 echo '<tr><td>'.$row["id"].'</td><td>'.$row["projectname"].'</td><td>'.$row["GROUP_CONCAT(employees.name SEPARATOR ', ')"].'</td>
                 <td>
@@ -98,6 +109,11 @@ tr:nth-child(even) {
                     <input type="hidden"  name="delprojid" value="'.$row["id"].'">
                     <input type="submit" value="delete project">
                     </form>
+                </td><td>
+                    <form action="index.php" method="POST">
+                    <input type="hidden"  name="wantUpdateProjid" value="'.$row["id"].'">
+                    <input type="submit" value="update project">
+                    </form>                
                 </td></tr>';                
             }
             echo '</table>';
@@ -105,10 +121,9 @@ tr:nth-child(even) {
             echo "0 results";
         }
     }
+
     
-
-
-
+    
     if (isset($_POST['empl'])) {
         drawEmplTable();
     }
@@ -117,6 +132,7 @@ tr:nth-child(even) {
     if (isset($_POST['proj'])) {
         drawProjTable();
     }
+    
 
     if (isset($_POST['delemplid'])) {
         $deleteid = $_POST['delemplid'];
@@ -130,6 +146,51 @@ tr:nth-child(even) {
         $sqldelete = "DELETE FROM actions WHERE `id` = $deleteid ";
         mysqli_query($conn, $sqldelete);
         drawProjTable();                           
+    }
+
+
+    if (isset($_POST['wantUpdateProjid'])) {
+        $updateid = $_POST['wantUpdateProjid'];
+        
+        $sql = "SELECT actions.projectname, actions.id, GROUP_CONCAT(employees.name SEPARATOR ', ')
+                FROM actions
+                LEFT JOIN employees
+                ON actions.id=employees.project_id
+                GROUP BY actions.id";
+
+        $result = mysqli_query($GLOBALS["conn"], $sql);
+
+        if (mysqli_num_rows($result) > 0) {
+            echo '<table>';
+            echo '<tr><th>project id</th><th>project name</th><th>responsible employee(s)</th></tr>';
+            while($row = mysqli_fetch_assoc($result)) {
+                if ($updateid == $row["id"]) {
+                    echo '<tr><td>'.$row["id"].'</td><td>
+                        <form action="index.php" method="POST">                        
+                            <input type="text"  name="updateprojname" value="'.$row["projectname"].'">
+                            <input type="hidden"  name="updateprojid" value="'.$row["id"].'">
+                            <input type="submit" value="submit update">
+                        </form>
+                    </td><td>'.$row["GROUP_CONCAT(employees.name SEPARATOR ', ')"].'</td></tr>';
+                } else {
+                    echo '<tr><td>'.$row["id"].'</td><td>'.$row["projectname"].'</td><td>'.$row["GROUP_CONCAT(employees.name SEPARATOR ', ')"].'</td>
+                </tr>';
+                }
+            }
+            echo '</table>';
+        } else {
+            echo "0 results";
+        }                             
+    }
+
+    if (isset($_POST['updateprojname'])) {
+        $projid = $_POST['updateprojid'];
+        $newprojname = $_POST['updateprojname'];
+        $sqlupdate = "UPDATE `actions`
+                      SET `projectname` = '$newprojname'
+                      WHERE `id` = $projid";
+        mysqli_query($conn, $sqlupdate);
+        drawProjTable();
     }
 
     
