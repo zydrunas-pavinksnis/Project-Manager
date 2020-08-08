@@ -142,7 +142,16 @@
                     <input type="hidden"  name="wantUpdateProjid" value="'.$row["id"].'">
                     <input type="submit" value="update project data">
                     </form>                
-                </td><td>remove employee from project</td></tr>';                
+                </td><td>';                
+                    if ($row["GROUP_CONCAT(employees.name SEPARATOR ', ')"] !== NULL) {
+                        echo '  <form action="index.php" method="POST">
+                                    <input type="hidden"  name="wantDissEmpl" value="'.$row["id"].'">
+                                    <input type="submit" value="dismiss employee from project">
+                                </form>';
+                    } else {
+                        echo 'no employees assigned';
+                    }
+                echo '</td></tr>';                
             }
             echo '</table>';
         } else {
@@ -297,7 +306,7 @@
                                     echo '<option value="'.$row2["id"].'">'.$row2["projectname"].'</option>';}
                             echo '</select>                       
                             <input type="hidden"  name="assignemplid" value="'.$row["id"].'">
-                            <input type="submit" value="assign project">
+                            <input type="submit" value="assign to project">
                         </form>
                     </td>
                     </tr>';
@@ -321,6 +330,69 @@
         mysqli_query($conn, $sqlupdate);
         drawEmplTable();
     }
+
+
+    if (isset($_POST['wantDissEmpl'])) {
+        $updateid = $_POST['wantDissEmpl'];
+        
+        $sql = "SELECT actions.projectname, actions.id, GROUP_CONCAT(employees.name SEPARATOR ', ')
+                FROM actions
+                LEFT JOIN employees
+                ON actions.id=employees.project_id
+                GROUP BY actions.id";
+
+        $result = mysqli_query($GLOBALS["conn"], $sql);
+
+        $sql2 = "SELECT employees.id, employees.name, employees.project_id FROM employees";
+        $result2 = mysqli_query($GLOBALS["conn"], $sql2);
+
+        if (mysqli_num_rows($result) > 0) {
+            echo '<table>';
+            echo '<tr><th>project id</th><th>project name</th><th>responsible employee(s)</th></tr>';
+            while($row = mysqli_fetch_assoc($result)) {
+                if ($updateid == $row["id"]) {
+                    $rowid = $row["id"];
+                    $sql2 = "   SELECT employees.id, employees.name, employees.project_id
+                                FROM employees
+                                WHERE project_id = $rowid ";
+                    $result2 = mysqli_query($GLOBALS["conn"], $sql2);
+                    echo '<tr><td>'.$row["id"].'</td><td>'.$row["projectname"].'</td>
+                    <td>
+                        <form action="index.php" method="POST">
+                            <select name="disemplid">';
+                                while($row2 = mysqli_fetch_assoc($result2)) {
+                                    echo '<option value="'.$row2["id"].'">'.$row2["name"].'</option>';}
+                            echo '</select>            
+                            <input type="submit" value="dismiss employee">
+                        </form>            
+                    </td></tr>';
+                } else {
+                    echo '<tr><td>'.$row["id"].'</td><td>'.$row["projectname"].'</td><td>'.$row["GROUP_CONCAT(employees.name SEPARATOR ', ')"].'</td>
+                </tr>';
+                }
+            }
+            echo '</table>';
+        } else {
+            echo "0 results";
+        }                             
+    }
+
+    if (isset($_POST['disemplid'])) {
+        $disemplid = $_POST['disemplid'];
+        $sqlupdate = "UPDATE `employees`
+                      SET `project_id` = NULL
+                      WHERE `id` = $disemplid ";
+        mysqli_query($conn, $sqlupdate);
+        drawProjTable();
+    }
+
+
+
+
+
+
+
+
 
 
 
