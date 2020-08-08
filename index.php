@@ -15,7 +15,6 @@
         }
 
         td, th {
-        /* border: 1px solid #dddddd; */
         text-align: left;
         padding: 8px;
         }
@@ -88,12 +87,12 @@
                 <td>
                     <form action="index.php" method="POST">
                     <input type="hidden"  name="delemplid" value="'.$row["id"].'">
-                    <input type="submit" value="delete employee">
+                    <input type="submit" value="remove employee">
                     </form>
                 </td><td>
                     <form action="index.php" method="POST">
                     <input type="hidden"  name="wantUpdateEmplid" value="'.$row["id"].'">
-                    <input type="submit" value="update employee name">
+                    <input type="submit" value="update employee data">
                     </form>
                 </td><td>';
                     if ($row["project_id"] == NULL) {
@@ -136,12 +135,12 @@
                 <td>
                     <form action="index.php" method="POST">
                     <input type="hidden"  name="delprojid" value="'.$row["id"].'">
-                    <input type="submit" value="delete project">
+                    <input type="submit" value="remove project">
                     </form>
                 </td><td>
                     <form action="index.php" method="POST">
                     <input type="hidden"  name="wantUpdateProjid" value="'.$row["id"].'">
-                    <input type="submit" value="update project name">
+                    <input type="submit" value="update project data">
                     </form>                
                 </td><td>remove employee from project</td></tr>';                
             }
