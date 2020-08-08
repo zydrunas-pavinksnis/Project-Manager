@@ -5,19 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Manager</title>
     <style>
+        body {background-color: #F2FFED;}
+
         table {
         font-family: arial, sans-serif;
+        color: #551A8B;
         border-collapse: collapse;
         width: 100%;
         }
 
         td, th {
-        border: 1px solid #dddddd;
+        /* border: 1px solid #dddddd; */
         text-align: left;
         padding: 8px;
         }
 
-        tr:nth-child(even) {
+        tr:nth-child(odd) {
         background-color: #dddddd;
         }
     </style>
@@ -35,11 +38,9 @@
             <input type="hidden"  name="proj">
             <a href="#" onclick="this.parentNode.submit();">Projects</a>
         </form>
-    </th><th style="text-align:right"><h2>Project Manager</h2></th></tr>
+    </th><th style="text-align:right"><h3>Project Manager</h3></th></tr>
     </table>
-
-    <br><br>    
-
+    <br>
 
     
     
@@ -65,12 +66,19 @@
     }
 
     function drawEmplTable (){
-        $sql = "SELECT employees.id, employees.name, actions.projectname
+        $sql = "SELECT employees.id, employees.name, employees.project_id, actions.projectname
                 FROM employees
                 LEFT JOIN actions
                 ON employees.project_id=actions.id";
 
         $result = mysqli_query($GLOBALS["conn"], $sql);
+
+        echo '  <br><table><tr><td>
+                    <form action="index.php" method="POST">                        
+                    <input type="text"  name="addempl" placeholder="name surname">
+                    <input type="submit" value="add new employee">
+                    </form>
+                </td></tr></table>';
     
         if (mysqli_num_rows($result) > 0) {
             echo '<table>';
@@ -87,7 +95,16 @@
                     <input type="hidden"  name="wantUpdateEmplid" value="'.$row["id"].'">
                     <input type="submit" value="update employee name">
                     </form>
-                </td><td>assing project to employee</td></tr>';                
+                </td><td>';
+                    if ($row["project_id"] == NULL) {
+                        echo '<form action="index.php" method="POST">
+                        <input type="hidden"  name="wantAssignProj" value="'.$row["id"].'">
+                        <input type="submit" value="assing project to employee">
+                        </form>';
+                    } else {
+                        echo 'has assigned project';
+                    }
+                echo '</td></tr>';                
             }
             echo '</table>';
         } else {
@@ -103,6 +120,13 @@
                 GROUP BY actions.id";
 
         $result = mysqli_query($GLOBALS["conn"], $sql);
+
+        echo '  <br><table><tr><td>
+                    <form action="index.php" method="POST">                        
+                    <input type="text"  name="addproj" placeholder="project name">
+                    <input type="submit" value="add new project">
+                    </form>                    
+                </td></tr></table>';
 
         if (mysqli_num_rows($result) > 0) {
             echo '<table>';
@@ -126,22 +150,7 @@
             echo "0 results";
         }
     }
-
-    function drawTableBottom () {
-        echo '  <br><table><tr><td>
-                    <form action="index.php" method="POST">                        
-                    <input type="text"  name="addempl" placeholder="name surname">
-                    <input type="submit" value="add new employee">
-                    </form>
-                </td><td>
-                    <form action="index.php" method="POST">                        
-                    <input type="text"  name="addproj" placeholder="project name">
-                    <input type="submit" value="add new project">
-                    </form>                    
-                </td></tr></table>';
-    }
-
-    
+      
     
     if (isset($_POST['empl'])) {
         drawEmplTable();
@@ -260,6 +269,62 @@
         drawProjTable();
     }
 
+    if (isset($_POST['wantAssignProj'])) {
+        $assignid = $_POST['wantAssignProj'];
+        
+        $sql = "SELECT employees.id, employees.name, employees.project_id, actions.projectname
+        FROM employees
+        LEFT JOIN actions
+        ON employees.project_id=actions.id";
+
+        $result = mysqli_query($GLOBALS["conn"], $sql);
+
+
+        $sql2 = "SELECT actions.id, actions.projectname FROM actions";
+        $result2 = mysqli_query($GLOBALS["conn"], $sql2);
+
+
+
+        if (mysqli_num_rows($result) > 0) {
+            echo '<table>';
+            echo '<tr><th>employee id</th><th>name</th><th>project</th></tr>';
+            while($row = mysqli_fetch_assoc($result)) {
+                if ($assignid == $row["id"]) {
+                    echo '<tr><td>'.$row["id"].'</td><td>'.$row["name"].'</td>
+                    <td>
+                        <form action="index.php" method="POST">
+                            <select name="assignprojid">';
+                                while($row2 = mysqli_fetch_assoc($result2)) {
+                                    echo '<option value="'.$row2["id"].'">'.$row2["projectname"].'</option>';}
+                            echo '</select>                       
+                            <input type="hidden"  name="assignemplid" value="'.$row["id"].'">
+                            <input type="submit" value="assign project">
+                        </form>
+                    </td>
+                    </tr>';
+                    } else {
+                        echo '<tr><td>'.$row["id"].'</td><td>'.$row["name"].'</td><td>'.$row["projectname"].'</td>
+                    </tr>';    
+                    }
+            }
+            echo '</table>';
+        } else {
+            echo "0 results";
+        }
+    }
+
+    if (isset($_POST['assignprojid'])) {
+        $assignemplid = $_POST['assignemplid'];
+        $assignprojid = $_POST['assignprojid'];
+        $sqlupdate = "UPDATE `employees`
+                      SET `project_id` = $assignprojid
+                      WHERE `id` = $assignemplid ";
+        mysqli_query($conn, $sqlupdate);
+        drawEmplTable();
+    }
+
+
+
     if (isset($_POST['addempl'])) {
         $newempl = $_POST['addempl'];
         $sqlupdate = "INSERT INTO employees VALUES (NULL, '$newempl', NULL);";
@@ -280,6 +345,7 @@
 
     mysqli_close($conn);
     ?>
+    <table><tr><td style="text-align:right">Copyright: Zydrunas Pavinksnis, 2020 anno Domini</td></tr></table>
 
 
 
