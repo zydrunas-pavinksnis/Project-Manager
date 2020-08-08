@@ -93,7 +93,6 @@
         } else {
             echo "0 results";
         }
-        echo '<br><table><tr><td>add project</td><td>add employee</td></tr></table>';
     }
 
     function drawProjTable(){
@@ -107,7 +106,7 @@
 
         if (mysqli_num_rows($result) > 0) {
             echo '<table>';
-            echo '<tr><th>project id</th><th>project name</th><th>responsible employee(s)</th><th colspan="2">actions</th></tr>';
+            echo '<tr><th>project id</th><th>project name</th><th>responsible employee(s)</th><th colspan="3">actions</th></tr>';
             while($row = mysqli_fetch_assoc($result)) {
                 echo '<tr><td>'.$row["id"].'</td><td>'.$row["projectname"].'</td><td>'.$row["GROUP_CONCAT(employees.name SEPARATOR ', ')"].'</td>
                 <td>
@@ -120,17 +119,27 @@
                     <input type="hidden"  name="wantUpdateProjid" value="'.$row["id"].'">
                     <input type="submit" value="update project name">
                     </form>                
-                </td></tr>';                
+                </td><td>remove employee from project</td></tr>';                
             }
             echo '</table>';
         } else {
             echo "0 results";
         }
-        echo '<br><table><tr><td>add project</td><td>add employee</td></tr></table>';
     }
 
-    
-    // <td>assing project to employee</td>
+    function drawTableBottom () {
+        echo '  <br><table><tr><td>
+                    <form action="index.php" method="POST">                        
+                    <input type="text"  name="addempl" placeholder="name surname">
+                    <input type="submit" value="add new employee">
+                    </form>
+                </td><td>
+                    <form action="index.php" method="POST">                        
+                    <input type="text"  name="addproj" placeholder="project name">
+                    <input type="submit" value="add new project">
+                    </form>                    
+                </td></tr></table>';
+    }
 
     
     
@@ -250,6 +259,24 @@
         mysqli_query($conn, $sqlupdate);
         drawProjTable();
     }
+
+    if (isset($_POST['addempl'])) {
+        $newempl = $_POST['addempl'];
+        $sqlupdate = "INSERT INTO employees VALUES (NULL, '$newempl', NULL);";
+        mysqli_query($conn, $sqlupdate);
+        drawEmplTable();
+    }
+
+    if (isset($_POST['addproj'])) {
+        $newproj = $_POST['addproj'];
+        $sqlupdate = "INSERT INTO actions VALUES (NULL, '$newproj');";
+        mysqli_query($conn, $sqlupdate);
+        drawProjTable();
+    }
+
+
+
+
 
     mysqli_close($conn);
     ?>
