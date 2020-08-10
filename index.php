@@ -38,20 +38,15 @@
         </form>
     </th><th style="text-align:right"><h2>Project Manager</h2></th></tr>
     </table>
-    <br>    
+    <br>      
+     
 
     <?php
-
-    // session_start();
-    // $_SESSION['empl'] = 'empl';
-    // $_POST['empl'] = $_SESSION['empl'];
-    // session_abort  ();
 
     $servername = "localhost";
     $username = "root";
     $password = "mysql";
     $dbname = "projects";
-    // $table = ;
     
     $conn = mysqli_connect($servername, $username, $password, $dbname);
         if (!$conn) {
@@ -150,21 +145,25 @@
             echo '<table><tr></tr><tr><td>Projects list empty.  Add new project.</td></tr></table>';
         }
     }
+    ob_start();
+    drawEmplTable();
 
-    
     if (isset($_POST['empl'])) {
+        ob_get_clean();
         drawEmplTable();
     }
-
+    
     if (isset($_POST['proj'])) {
-        drawProjTable();
-    }    
+        ob_get_clean();
+        drawProjTable();    
+    }
 
     if (isset($_POST['delemplid'])) {
         $deleteid = $_POST['delemplid'];
         $sqldelete = "  DELETE FROM employees
                         WHERE `id` = $deleteid ";
         mysqli_query($conn, $sqldelete);
+        ob_get_clean();
         drawEmplTable();                           
     }
 
@@ -173,6 +172,7 @@
         $sqldelete = "  DELETE FROM actions
                         WHERE `id` = $deleteid ";
         mysqli_query($conn, $sqldelete);
+        ob_get_clean();
         drawProjTable();                           
     }
 
@@ -181,6 +181,7 @@
         $sqlupdate = "  INSERT INTO employees 
                         VALUES (NULL, '$newempl', NULL);";
         mysqli_query($conn, $sqlupdate);
+        ob_get_clean();
         drawEmplTable();
     }
 
@@ -189,11 +190,13 @@
         $sqlupdate = "  INSERT INTO actions
                         VALUES (NULL, '$newproj');";
         mysqli_query($conn, $sqlupdate);
+        ob_get_clean();
         drawProjTable();
     }
 
 
     if (isset($_POST['wantUpdateEmplid'])) {
+        ob_get_clean();
         $updateid = $_POST['wantUpdateEmplid'];
         $sql = "SELECT employees.id, employees.name, actions.projectname
                 FROM employees
@@ -226,11 +229,13 @@
                                 SET `name` = '$newemplname'
                                 WHERE `id` = $emplid";
                 mysqli_query($conn, $sqlupdate);
+                ob_get_clean();
                 drawEmplTable();
             }
 
 
     if (isset($_POST['wantUpdateProjid'])) {
+        ob_get_clean();
         $updateid = $_POST['wantUpdateProjid'];
         $sql = "SELECT actions.projectname, actions.id, GROUP_CONCAT(employees.name SEPARATOR ', ')
                 FROM actions
@@ -264,11 +269,13 @@
                                 SET `projectname` = '$newprojname'
                                 WHERE `id` = $projid";
                 mysqli_query($conn, $sqlupdate);
+                ob_get_clean();
                 drawProjTable();
             }
 
 
     if (isset($_POST['wantAssignProj'])) {
+        ob_get_clean();
         $assignid = $_POST['wantAssignProj'];
         $sql = "SELECT employees.id, employees.name, employees.project_id, actions.projectname
                 FROM employees
@@ -307,11 +314,13 @@
                                 SET `project_id` = $assignprojid
                                 WHERE `id` = $assignemplid ";
                 mysqli_query($conn, $sqlupdate);
+                ob_get_clean();
                 drawEmplTable();
             }
 
 
     if (isset($_POST['wantDissEmpl'])) {
+        ob_get_clean();
         $updateid = $_POST['wantDissEmpl'];
         $sql = "SELECT actions.projectname, actions.id, GROUP_CONCAT(employees.name SEPARATOR ', ')
                 FROM actions
@@ -352,6 +361,7 @@
                                 SET `project_id` = NULL
                                 WHERE `id` = $disemplid ";
                 mysqli_query($conn, $sqlupdate);
+                ob_get_clean();
                 drawProjTable();
             }
 
